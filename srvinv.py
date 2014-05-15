@@ -4,10 +4,10 @@ srvinv - a server inventory
 
 usage examples:
 ---------------
-srvinv get srv srvid --attribute macs: returns a srvid's macs formatted as json
+srvinv get srv srvid --attribute interfaces: returns a srvid's interfaces formatted as json
 srvinv set srv srvid --attribute is_provisioned --value "true": sets is_provisioned to true on a srvid
-srvinv reg srv srvid: will register a new srvid in inventory
-srvinv del srv srvid: will remove a srvid from inventory
+srvinv register srv srvid: will register a new srvid in inventory
+srvinv delete srv srvid: will remove a srvid from inventory
 '''
 
 import argparse
@@ -16,7 +16,7 @@ import argparse
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("verb",
-      help="verbs to be used: get, set, reg, del",
+      help="verbs to be used: get, set, register, delete",
       type=str
     )
     parser.add_argument("resource",
@@ -47,6 +47,7 @@ if __name__ == "__main__":
       if not args.attribute == None:
         # srvinv.get(resource, resourceid, attribute)
         print args.attribute
+
     elif args.verb == 'set':
       print args.verb
       if args.attribute == None:
@@ -58,9 +59,11 @@ if __name__ == "__main__":
         else:
           print args.value
           # srvinv.set(resource, resourceid, attribute, value)
-    elif args.verb == 'reg':
+
+    elif args.verb == 'register':
       print args.verb
       # srvinv.reg(resource, resourceid)
-    elif args.verb == 'del':
+
+    elif args.verb == 'delete':
       print args.verb
       # srvinv.reg(resource, resourceid)
