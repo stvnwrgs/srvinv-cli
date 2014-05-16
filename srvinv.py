@@ -11,7 +11,7 @@ srvinv delete srv srvid: will remove a srvid from inventory
 '''
 
 import argparse
-#import requests
+import libsrvinv
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -38,32 +38,20 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    #if not args.dry_run:
-    #    mkdir_p(dst)
-
     if args.verb == 'get':
-      print args.verb
-      # srvinv.get(resource, resourceid)
-      if not args.attribute == None:
-        # srvinv.get(resource, resourceid, attribute)
-        print args.attribute
+      libsrvinv.get(args.resource, args.resourceid, args.attribute)
 
     elif args.verb == 'set':
-      print args.verb
       if args.attribute == None:
         print 'missing attribute'
       else:
-        print args.attribute
         if args.value == None:
           print 'missing value'
         else:
-          print args.value
-          # srvinv.set(resource, resourceid, attribute, value)
+          libsrvinv.set(args.resource, args.resourceid, args.attribute, args.value)
 
     elif args.verb == 'register':
-      print args.verb
-      # srvinv.reg(resource, resourceid)
+      libsrvinv.register(args.resource, args.resourceid)
 
     elif args.verb == 'delete':
-      print args.verb
-      # srvinv.reg(resource, resourceid)
+      libsrvinv.delete(args.resource, args.resourceid)
