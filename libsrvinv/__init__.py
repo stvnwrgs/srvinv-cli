@@ -44,6 +44,8 @@ def register(resource, resourceid):
   apirequest = requests.post(api_url + resource + 's', data=to_register_resource)
   if apirequest.status_code == 201:
     print to_register_resource
+  elif apirequest.status_code == 409:
+    print 'conflict: already registered'
   else:
     print 'error communicating with srvinv daemon'
 
