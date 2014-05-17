@@ -8,7 +8,7 @@ srvsearch srv deployed_with "docker": returns a json array of srvids that are de
 '''
 
 import argparse
-#import requests
+import libsrvinv
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -27,5 +27,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    #if not args.dry_run:
-    #    mkdir_p(dst)
+    libsrvinv.search(args.resource, args.attribute, args.value)

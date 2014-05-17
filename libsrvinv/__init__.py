@@ -3,8 +3,10 @@ libsrvinv - the main library serving default methods for srvinv clients
 '''
 
 import config
+import helpers
 import requests
 import json
+import glob
 from datetime import datetime
 
 api_url = config.master_url + config.api_version + '/'
@@ -26,6 +28,9 @@ def set(resource, resourceid, attribute, value):
   apirequest = requests.get(api_url + resource + 's/' + resourceid)
   if apirequest.status_code == 200:
       resource_as_obj = json.loads(apirequest.text)
+      # validate if value is json so we dont put it in there as string
+      if helpers.is_json(value):
+        value = json.loads(value)
       resource_as_obj[attribute] = value
       to_set_resource = json.dumps(resource_as_obj)
       apirequest = requests.put(api_url + resource + 's/' + resourceid, data=to_set_resource)
@@ -57,4 +62,5 @@ def delete(resource, resourceid):
     print 'error communicating with srvinv daemon'
 
 def search(resource, attribute, value):
-  print resource
+  files_in_cache_dir = glob.glob(config.cache_path)
+  print files_in_cache_dir
