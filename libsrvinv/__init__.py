@@ -32,6 +32,7 @@ def set(resource, resourceid, attribute, value):
       if helpers.is_json(value):
         value = json.loads(value)
       resource_as_obj[attribute] = value
+      resource_as_obj['updated_at'] = unicode(datetime.utcnow())
       to_set_resource = json.dumps(resource_as_obj)
       apirequest = requests.put(api_url + resource + 's/' + resourceid, data=to_set_resource)
       if apirequest.status_code == 202:
@@ -44,7 +45,7 @@ def set(resource, resourceid, attribute, value):
     print 'error communicating with srvinv daemon'
 
 def register(resource, resourceid):
-  to_register_resource = {"name": resourceid, "created_at": unicode(datetime.utcnow())}
+  to_register_resource = {"name": resourceid, "created_at": unicode(datetime.utcnow()), "updated_at": unicode(datetime.utcnow())}
   to_register_resource = json.dumps(to_register_resource)
   apirequest = requests.post(api_url + resource + 's', data=to_register_resource)
   if apirequest.status_code == 201:
