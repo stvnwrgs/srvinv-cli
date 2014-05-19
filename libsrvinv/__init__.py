@@ -21,8 +21,10 @@ def get(resource, resourceid, attribute):
       print resource_as_obj[attribute]
   elif apirequest.status_code == 404:
     print 'resource not found'
+    exit(1)
   elif apirequest.status_code == 500:
     print 'error communicating with srvinv daemon'
+    exit(1)
 
 def set(resource, resourceid, attribute, value):
   apirequest = requests.get(api_url + resource + 's/' + resourceid)
@@ -36,10 +38,13 @@ def set(resource, resourceid, attribute, value):
         print to_set_value
       else:
         print 'error communicating with srvinv daemon'
+        exit(1)
   elif apirequest.status_code == 404:
     print 'resource not found'
+    exit(1)
   elif apirequest.status_code == 500:
     print 'error communicating with srvinv daemon'
+    exit(1)
 
 def register(resource, resourceid):
   to_register_resource = {"name": resourceid, "created_at": unicode(datetime.utcnow()), "updated_at": unicode(datetime.utcnow())}
@@ -49,8 +54,10 @@ def register(resource, resourceid):
     print to_register_resource
   elif apirequest.status_code == 409:
     print 'conflict: already registered'
+    exit(1)
   else:
     print 'error communicating with srvinv daemon'
+    exit(1)
 
 def delete(resource, resourceid):
   apirequest = requests.delete(api_url + resource + 's/' + resourceid)
@@ -58,6 +65,7 @@ def delete(resource, resourceid):
     print 'deleted ' + resource + ': ' + resourceid
   else:
     print 'error communicating with srvinv daemon'
+    exit(1)
 
 def search(resource, attribute, value):
   files_in_cache_dir = glob.glob(config.cache_path)
