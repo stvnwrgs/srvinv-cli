@@ -27,16 +27,13 @@ def get(resource, resourceid, attribute):
 def set(resource, resourceid, attribute, value):
   apirequest = requests.get(api_url + resource + 's/' + resourceid)
   if apirequest.status_code == 200:
-      resource_as_obj = json.loads(apirequest.text)
       # validate if value is json so we dont put it in there as string
       if helpers.is_json(value):
         value = json.loads(value)
-      resource_as_obj[attribute] = value
-      resource_as_obj['updated_at'] = unicode(datetime.utcnow())
-      to_set_resource = json.dumps(resource_as_obj)
-      apirequest = requests.put(api_url + resource + 's/' + resourceid, data=to_set_resource)
+      to_set_value = json.dumps({"value": value})
+      apirequest = requests.patch(api_url + resource + 's/' + resourceid + '/' + attribute, data=to_set_value)
       if apirequest.status_code == 202:
-        print to_set_resource
+        print to_set_value
       else:
         print 'error communicating with srvinv daemon'
   elif apirequest.status_code == 404:
