@@ -6,7 +6,9 @@ import config
 import helpers
 import requests
 import json
-import glob
+import os
+import fnmatch
+import time
 from datetime import datetime
 
 api_url = config.master_url + config.api_version + '/'
@@ -68,5 +70,27 @@ def delete(resource, resourceid):
     exit(1)
 
 def search(resource, attribute, value):
-  files_in_cache_dir = glob.glob(config.cache_path)
-  print files_in_cache_dir
+  found_resources = []
+  cache_file_path = config.cache_path + resource + '.json'
+
+  if (os.path.isfile(cache_file_path)) and (os.path.getmtime(cache_file_path) > (time.time() - config.cache_duration_in_s)):
+    cache_file = open(cache_file_path, 'r')
+    cache = cache_file.read()
+    cache_file.close
+  else:
+    apirequest = requests.get(api_url + resource + 's')
+    if apirequest.status_code == 200:
+      cache = apirequest.text
+      cache_file = open(cache_file_path, 'w')
+      cache_file.write(cache)
+      cache_file.close
+    else:
+      print 'error communicating with srvinv daemon'
+      exit(1)
+
+  cache_as_obj = json.loads(cache)
+  for resource_to_search in cache_as_obj:
+    if fnmatch.fnmatch(resource_to_search[attribute], value):
+      found_resources.append(resource_to_search)
+
+  print json.dumps(found_resources)
