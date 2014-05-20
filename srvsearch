@@ -27,4 +27,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    libsrvinv.search(args.resource, args.attribute, args.value)
+    result = libsrvinv.search(args.resource, args.attribute, args.value)
+    if not result:
+      exit(1)
+    else:
+      print result
