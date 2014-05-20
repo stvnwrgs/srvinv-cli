@@ -17,16 +17,16 @@ def get(resource, resourceid, attribute):
   apirequest = requests.get(api_url + resource + 's/' + resourceid)
   if apirequest.status_code == 200:
     if not attribute:
-      print apirequest.text
+      return apirequest.text
     else:
       resource_as_obj = json.loads(apirequest.text)
-      print resource_as_obj[attribute]
+      return json.dumps(resource_as_obj[attribute])
   elif apirequest.status_code == 404:
     print 'resource not found'
-    exit(1)
+    return False
   elif apirequest.status_code == 500:
     print 'error communicating with srvinv daemon'
-    exit(1)
+    return False
 
 def set(resource, resourceid, attribute, value):
   apirequest = requests.get(api_url + resource + 's/' + resourceid)
@@ -37,37 +37,37 @@ def set(resource, resourceid, attribute, value):
       to_set_value = json.dumps({"value": value})
       apirequest = requests.patch(api_url + resource + 's/' + resourceid + '/' + attribute, data=to_set_value)
       if apirequest.status_code == 202:
-        print to_set_value
+        return to_set_value
       else:
         print 'error communicating with srvinv daemon'
-        exit(1)
+        return False
   elif apirequest.status_code == 404:
     print 'resource not found'
-    exit(1)
+    return False
   elif apirequest.status_code == 500:
     print 'error communicating with srvinv daemon'
-    exit(1)
+    return False
 
 def register(resource, resourceid):
   to_register_resource = {"name": resourceid, "created_at": unicode(datetime.utcnow()), "updated_at": unicode(datetime.utcnow())}
   to_register_resource = json.dumps(to_register_resource)
   apirequest = requests.post(api_url + resource + 's', data=to_register_resource)
   if apirequest.status_code == 201:
-    print to_register_resource
+    return to_register_resource
   elif apirequest.status_code == 409:
     print 'conflict: already registered'
-    exit(1)
+    return False
   else:
     print 'error communicating with srvinv daemon'
-    exit(1)
+    return False
 
 def delete(resource, resourceid):
   apirequest = requests.delete(api_url + resource + 's/' + resourceid)
   if apirequest.status_code == 202:
-    print 'deleted ' + resource + ': ' + resourceid
+    return 'deleted ' + resource + ': ' + resourceid
   else:
     print 'error communicating with srvinv daemon'
-    exit(1)
+    return False
 
 def search(resource, attribute, value):
   found_resources = []
@@ -86,7 +86,7 @@ def search(resource, attribute, value):
       cache_file.close
     else:
       print 'error communicating with srvinv daemon'
-      exit(1)
+      return False
 
   cache_as_obj = json.loads(cache)
   for resource_to_search in cache_as_obj:
@@ -98,4 +98,4 @@ def search(resource, attribute, value):
     if fnmatch.fnmatch(attribute_to_search, value):
       found_resources.append(resource_to_search)
 
-  print json.dumps(found_resources)
+  return json.dumps(found_resources)

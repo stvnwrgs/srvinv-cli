@@ -37,9 +37,10 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+    result = ''
 
     if args.verb == 'get':
-      libsrvinv.get(args.resource, args.resourceid, args.attribute)
+      result = libsrvinv.get(args.resource, args.resourceid, args.attribute)
 
     elif args.verb == 'set':
       if args.attribute == None:
@@ -48,10 +49,15 @@ if __name__ == "__main__":
         if args.value == None:
           print 'missing value'
         else:
-          libsrvinv.set(args.resource, args.resourceid, args.attribute, args.value)
+          result = libsrvinv.set(args.resource, args.resourceid, args.attribute, args.value)
 
     elif args.verb == 'register':
-      libsrvinv.register(args.resource, args.resourceid)
+      result = libsrvinv.register(args.resource, args.resourceid)
 
     elif args.verb == 'delete':
-      libsrvinv.delete(args.resource, args.resourceid)
+      result = libsrvinv.delete(args.resource, args.resourceid)
+
+    if not result:
+      exit(1)
+    else:
+      print result
