@@ -90,7 +90,12 @@ def search(resource, attribute, value):
 
   cache_as_obj = json.loads(cache)
   for resource_to_search in cache_as_obj:
-    if fnmatch.fnmatch(resource_to_search[attribute], value):
+    # we need to make sure to convert arrays to strings so we can fnmatch them
+    if isinstance(resource_to_search[attribute], list):
+       attribute_to_search = json.dumps(resource_to_search[attribute])
+    else:
+       attribute_to_search = resource_to_search[attribute]
+    if fnmatch.fnmatch(attribute_to_search, value):
       found_resources.append(resource_to_search)
 
   print json.dumps(found_resources)
