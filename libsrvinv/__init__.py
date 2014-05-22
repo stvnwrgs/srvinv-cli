@@ -84,6 +84,7 @@ def search(resource, attribute, value):
       cache_file = open(cache_file_path, 'w')
       cache_file.write(cache)
       cache_file.close
+      os.chmod(cache_file_path, 0766)
     else:
       print 'error communicating with srvinv daemon'
       return False
