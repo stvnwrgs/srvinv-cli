@@ -96,7 +96,7 @@ def search(resource, attribute, value):
        attribute_to_search = json.dumps(resource_to_search[attribute])
     else:
        attribute_to_search = resource_to_search[attribute]
-    if fnmatch.fnmatch(attribute_to_search, value):
+    if fnmatch.fnmatch(str(attribute_to_search), value):
       found_resources.append(resource_to_search)
 
   return json.dumps(found_resources)
