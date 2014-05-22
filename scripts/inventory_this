@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+'''
+srvinv-cli/scripts/inventory_this
+a script to register this machine inside the srvinv
+this is very basic and relies on some assumptions (e.g. disksize is only '/')
+'''
+import sys
+sys.path.append("..")
+import libsrvinv
+import psutil
+import netifaces
+import json
+import platform
+
+srvid = platform.node()
+
+cpu_cores = str(psutil.cpu_count())
+ram_size_mb = str(psutil.virtual_memory().total / 1024 / 1024)
+disk_size_gb = str(psutil.disk_usage('/').total / 1024 / 1024 / 1024)
+
+interfaces = netifaces.interfaces()
+interfaces_to_inv = []
+for interface in interfaces:
+  addrs = netifaces.ifaddresses(interface)
+  interfaces_to_inv.append({interface: addrs})
+interfaces_to_inv = json.dumps(interfaces_to_inv)
+
+os = platform.system()
+os_version = platform.release()
+os_arch = platform.machine()
+
+# try to register the srvid
+print 'Register: ' + str(libsrvinv.register('srv', srvid))
+# set values
+print 'CPU cores: ' + libsrvinv.set('srv', srvid, 'cpu_cores', cpu_cores)
+print 'RAM size mb: ' + libsrvinv.set('srv', srvid, 'ram_size_mb', ram_size_mb)
+print 'disk size gb: ' + libsrvinv.set('srv', srvid, 'disk_size_gb', disk_size_gb)
+print 'interfaces: ' + libsrvinv.set('srv', srvid, 'interfaces', interfaces_to_inv)
+print 'os: ' + libsrvinv.set('srv', srvid, 'os', os)
+print 'os version: ' + libsrvinv.set('srv', srvid, 'os_version', os_version)
+print 'os arch: ' + libsrvinv.set('srv', srvid, 'os_arch', os_arch)
