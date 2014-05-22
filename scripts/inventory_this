@@ -11,6 +11,7 @@ import psutil
 import netifaces
 import json
 import platform
+from netaddr import IPNetwork, IPAddress
 
 srvid = platform.node()
 
@@ -23,6 +24,20 @@ interfaces_to_inv = []
 for interface in interfaces:
   addrs = netifaces.ifaddresses(interface)
   interfaces_to_inv.append({interface: addrs})
+
+# set net by finding the network (has to be predefined)
+net_id = None
+networks = json.loads(libsrvinv.search('net', 'name', '*'))
+for net in networks:
+  if 'netmask' in net:
+    for interface in interfaces:
+      addrs = netifaces.ifaddresses(interface)
+      if netifaces.AF_INET in addrs:
+        ips = addrs[netifaces.AF_INET]
+        for ip in ips:
+          if IPAddress(str(ip['addr'])) in IPNetwork(net['netmask']):
+            net_id = net['name']
+            break
 interfaces_to_inv = json.dumps(interfaces_to_inv)
 
 os = platform.system()
@@ -32,6 +47,7 @@ os_arch = platform.machine()
 # try to register the srvid
 print 'Register: ' + str(libsrvinv.register('srv', srvid))
 # set values
+if net_id: print 'net_id: ' + libsrvinv.set('srv', srvid, 'net_id', net_id)
 print 'CPU cores: ' + libsrvinv.set('srv', srvid, 'cpu_cores', cpu_cores)
 print 'RAM size mb: ' + libsrvinv.set('srv', srvid, 'ram_size_mb', ram_size_mb)
 print 'disk size gb: ' + libsrvinv.set('srv', srvid, 'disk_size_gb', disk_size_gb)
