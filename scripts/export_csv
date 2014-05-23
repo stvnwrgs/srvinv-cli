@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+import sys
+sys.path.append("..")
+import libsrvinv
+import json
+import os
+import string
+from subprocess import call
+
+fields = ['name', 'servicenames', 'ips', 'cpu_cores', 'ram_size_mb', 'disk_size_gb', 'net_id', 'cpu_util', 'ram_util', 'disk_util']
+print ';'.join(fields)
+
+servers = json.loads(libsrvinv.search('srv', 'name', '*'))
+
+for srv in servers:
+  srv['cpu_util'] = 0
+  srv['ram_util'] = 0
+  srv['disk_util'] = 0
+  srv['ips'] = []
+
+  for interface in srv['interfaces']:
+    for interface_name in interface.keys():
+      if interface_name == 'lo':
+        break
+      if '2' in interface[interface_name].keys():
+        ips_on_interface = interface[interface_name]['2']
+        for ip_on_interface in ips_on_interface:
+          srv['ips'].append(ip_on_interface['addr'])
+
+  # find service names, ugly incoming
+  lines_with_srvid = os.popen('grep ' + srv['name'] + ' bindconfig | grep -v ";" | cut -f1').read()
+  lines_with_srvid = string.split(lines_with_srvid,"\n")
+  del lines_with_srvid[-1]
+  for line in lines_with_srvid:
+    srv['servicenames'].append(line)
+
+  for ip in srv['ips']:
+    lines_with_ip = os.popen('grep ' + ip + ' bindconfig | grep -v ";" | cut -f1').read()
+    lines_with_ip = string.split(lines_with_ip,"\n")
+    del lines_with_ip[-1]
+    for line in lines_with_ip:
+      srv['servicenames'].append(line)
+
+  result = ';'.join([str(srv[fieldname]) for fieldname in fields])
+  print result
