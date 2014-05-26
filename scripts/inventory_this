@@ -31,15 +31,16 @@ priv_ip = ''
 for net in networks:
   if 'netmask' in net:
     for interface in interfaces:
-      addrs = netifaces.ifaddresses(interface)
-      if netifaces.AF_INET in addrs:
-        ips = addrs[netifaces.AF_INET]
-        for ip in ips:
-          if not ip['addr'] == '127.0.0.1':
-            if IPAddress(str(ip['addr'])) in IPNetwork(net['netmask']):
-              priv_ip = str(ip['addr'])
-              net_id = net['name']
-              break
+      if not interface == 'lo':
+        addrs = netifaces.ifaddresses(interface)
+        if netifaces.AF_INET in addrs:
+          ips = addrs[netifaces.AF_INET]
+          for ip in ips:
+            if not ip['addr'] == '127.0.0.1':
+              if IPAddress(str(ip['addr'])) in IPNetwork(net['netmask']):
+                priv_ip = str(ip['addr'])
+                net_id = net['name']
+                break
 interfaces_to_inv = json.dumps(interfaces_to_inv)
 
 octets = string.split(priv_ip, '.')
