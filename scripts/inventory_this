@@ -11,9 +11,8 @@ import psutil
 import netifaces
 import json
 import platform
+import string
 from netaddr import IPNetwork, IPAddress
-
-srvid = platform.node()
 
 cpu_cores = str(psutil.cpu_count())
 ram_size_mb = str(psutil.virtual_memory().total / 1024 / 1024)
@@ -28,6 +27,7 @@ for interface in interfaces:
 # set net by finding the network (has to be predefined)
 net_id = None
 networks = json.loads(libsrvinv.search('net', 'name', '*'))
+priv_ip = ''
 for net in networks:
   if 'netmask' in net:
     for interface in interfaces:
@@ -35,10 +35,15 @@ for net in networks:
       if netifaces.AF_INET in addrs:
         ips = addrs[netifaces.AF_INET]
         for ip in ips:
-          if IPAddress(str(ip['addr'])) in IPNetwork(net['netmask']):
-            net_id = net['name']
-            break
+          if not ip['addr'] == '127.0.0.1':
+            if IPAddress(str(ip['addr'])) in IPNetwork(net['netmask']):
+              priv_ip = str(ip['addr'])
+              net_id = net['name']
+              break
 interfaces_to_inv = json.dumps(interfaces_to_inv)
+
+octets = string.split(priv_ip, '.')
+srvid = 'srv' + octets[2].zfill(3) + octets[3].zfill(3)
 
 os = platform.system()
 os_version = platform.release()
